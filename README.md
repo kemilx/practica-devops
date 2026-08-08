@@ -55,3 +55,7 @@ Secretos requeridos en GitHub Actions:
 
 El archivo [`render.yaml`](render.yaml) define el servicio web de producción
 que consume la imagen pública de Docker Hub y verifica su endpoint `/health`.
+
+URL de producción:
+
+<https://hola-mundo-devops-y63z.onrender.com>
