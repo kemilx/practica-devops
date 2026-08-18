@@ -1,61 +1,63 @@
-# Práctica: ciclo DevOps con Docker
+# Práctica final DevOps CI/CD
 
-Aplicación web **Hola Mundo** creada con Python y su biblioteca estándar.
+Aplicación web “Hola Mundo” creada con Flask. Cada `push` a `main` ejecuta las pruebas,
+publica una imagen en Docker Hub y activa un despliegue en Render.
+
+## Tecnologías
+
+- Python 3.12, Flask y Gunicorn
+- Pytest
+- Docker
+- GitHub Actions
+- Docker Hub
+- Render
 
 ## Ejecutar localmente
 
-```powershell
+```bash
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+# Linux/macOS: source .venv/bin/activate
+pip install -r requirements-dev.txt
+pytest -v
 python app.py
 ```
 
-Abrir <http://localhost:8080>.
+Abre <http://localhost:8080>. El endpoint de salud está en
+<http://localhost:8080/health>.
 
-## Construir y probar la imagen
+## Ejecutar con Docker
 
-```powershell
-docker build -t kemildev/hola-mundo-devops:1.0 .
-docker run --rm -p 8080:8080 kemildev/hola-mundo-devops:1.0
+```bash
+docker build -t kemildev/hola-mundo-devops:local .
+docker run --rm -p 8080:8080 kemildev/hola-mundo-devops:local
 ```
 
-Abrir <http://localhost:8080>. Para detener el contenedor, presionar `Ctrl+C`.
+## Configurar CI/CD
 
-## Publicar en Docker Hub
+1. Crea un repositorio público en GitHub y sube este proyecto a la rama `main`.
+2. Usa el repositorio público `kemildev/hola-mundo-devops` de Docker Hub.
+3. En Docker Hub, crea un *access token*.
+4. En GitHub ve a **Settings → Secrets and variables → Actions** y agrega:
+   - `DOCKERHUB_USERNAME`: tu usuario de Docker Hub.
+   - `DOCKERHUB_TOKEN`: el access token de Docker Hub (no uses tu contraseña).
+5. En Render selecciona **New → Blueprint**, conecta el repositorio y aplica
+   `render.yaml`. El servicio consume la imagen publicada en Docker Hub.
+6. En el servicio de Render abre **Settings → Deploy Hook**, copia la URL y
+   guárdala en GitHub como el secreto `RENDER_DEPLOY_HOOK_URL`.
+7. Haz un nuevo `push` a `main`. El workflow ejecutará test → Docker Hub → Render.
 
-1. Crear un repositorio público llamado `hola-mundo-devops` en Docker Hub.
-2. Iniciar sesión y subir ambas etiquetas:
+> GitHub Actions envía a Render la etiqueta inmutable del commit aprobado, por lo
+> que producción recibe exactamente la imagen que superó las pruebas.
 
-```powershell
-docker login
-docker push kemildev/hola-mundo-devops:1.0
-docker tag kemildev/hola-mundo-devops:1.0 kemildev/hola-mundo-devops:latest
-docker push kemildev/hola-mundo-devops:latest
-```
+## Enlaces de entrega
 
-URL para entregar:
+- Repositorio público: <https://github.com/kemilx/practica-devops>
+- Imagen pública: <https://hub.docker.com/r/kemildev/hola-mundo-devops>
+- Aplicación en producción: <https://hola-mundo-devops-y63z.onrender.com>
+
+## Flujo
 
 ```text
-https://hub.docker.com/r/kemildev/hola-mundo-devops
+push a main → instalar dependencias → pytest → build/push Docker → deploy Render
 ```
-
-## CI/CD con GitHub Actions y Render
-
-El workflow [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) se
-ejecuta en cada `push` a `main` y realiza el ciclo completo:
-
-1. Ejecuta las pruebas automáticas.
-2. Construye la imagen para `linux/amd64`.
-3. Publica las etiquetas `latest` y `sha-<commit>` en Docker Hub.
-4. Solicita a Render desplegar exactamente la imagen del commit aprobado.
-
-Secretos requeridos en GitHub Actions:
-
-- `DOCKERHUB_USERNAME`: usuario de Docker Hub (`kemildev`).
-- `DOCKERHUB_TOKEN`: token de Docker Hub con permiso de lectura/escritura.
-- `RENDER_DEPLOY_HOOK_URL`: URL secreta del Deploy Hook del servicio de Render.
-
-El archivo [`render.yaml`](render.yaml) define el servicio web de producción
-que consume la imagen pública de Docker Hub y verifica su endpoint `/health`.
-
-URL de producción:
-
-<https://hola-mundo-devops-y63z.onrender.com>

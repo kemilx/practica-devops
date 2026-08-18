@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Aplicación de ejemplo para una práctica de DevOps CI/CD">
+    <title>Hola Mundo | DevOps CI/CD</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <main class="card">
+      <span class="status"><span class="dot"></span> Aplicación en línea</span>
+      <p class="eyebrow">Práctica final de DevOps</p>
+      <h1>¡Hola, mundo!</h1>
+      <p class="description">
+        Esta aplicación se prueba, empaqueta y publica automáticamente con
+        GitHub Actions, Docker Hub y Render.
+      </p>
+      <div class="pipeline" aria-label="Flujo de entrega continua">
+        <span>GitHub</span><b>→</b><span>Tests</span><b>→</b><span>Docker</span><b>→</b><span>Render</span>
+      </div>
+    </main>
+  </body>
+</html>
