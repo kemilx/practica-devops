@@ -36,7 +36,7 @@ jobs:
         run: pip install -r requirements-dev.txt
 
       - name: Ejecutar pruebas unitarias
-        run: pytest -v
+        run: python -m pytest -v
 
   docker:
     name: Publicar imagen en Docker Hub
